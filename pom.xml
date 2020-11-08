@@ -12,7 +12,7 @@
 	<artifactId>lecture-hibernate</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>lecture-hibernate</name>
-	<description>Hibenate examples for leture.</description>
+	<description>Hibernate examples for lecture.</description>
 
 	<properties>
 		<java.version>11</java.version>
