@@ -1,6 +1,6 @@
 package com.pravvich.lecturehibernate;
 
-import com.pravvich.lecturehibernate.repository.ProductRepository;
+import com.pravvich.lecturehibernate.repository.ProductRepositoryImpl;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -8,11 +8,11 @@ import org.springframework.stereotype.Service;
 @AllArgsConstructor
 public class ProductServiceImpl implements ProductService {
 
-    private final ProductRepository productRepository;
+    private final ProductRepositoryImpl productRepositoryImpl;
 
     @Override
     public long count() {
-        return productRepository.count();
+        return 0;
     }
 
 }
