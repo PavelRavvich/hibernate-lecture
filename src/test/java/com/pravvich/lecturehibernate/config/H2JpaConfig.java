@@ -1,10 +1,11 @@
 package com.pravvich.lecturehibernate.config;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import com.pravvich.lecturehibernate.repository.ProductRepository;
+import com.pravvich.lecturehibernate.repository.ProductRepositoryImpl;
+import org.hibernate.SessionFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
-import org.springframework.core.env.Environment;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.orm.jpa.JpaTransactionManager;
@@ -17,10 +18,20 @@ import javax.sql.DataSource;
 import java.util.Properties;
 
 @Configuration
-@EnableJpaRepositories(basePackages="com.pravvich.lecturehibernate")
+@EnableJpaRepositories(basePackages="com.pravvich")
 @PropertySource("classpath:application.properties")
 @EnableTransactionManagement
 public class H2JpaConfig {
+
+    @Bean
+    public ProductRepository productRepository(SessionFactory sessionFactory) {
+        return new ProductRepositoryImpl(sessionFactory);
+    }
+
+    @Bean
+    public SessionFactory setSessionFactory(EntityManagerFactory entityManagerFactory) {
+        return entityManagerFactory.unwrap(SessionFactory.class);
+    }
 
     @Bean
     public DataSource dataSource() {

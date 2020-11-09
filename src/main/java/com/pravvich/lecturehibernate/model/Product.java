@@ -4,7 +4,6 @@ import lombok.*;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
-import java.sql.Timestamp;
 
 @Entity
 @Data
@@ -19,9 +18,7 @@ public class Product {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private Timestamp time;
-
-    private BigDecimal amount;
+    private BigDecimal price;
 
     @ManyToOne(fetch = FetchType.LAZY)
     private Customer customer;

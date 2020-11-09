@@ -30,10 +30,10 @@ public class JpaConfig {
     @Primary
     public EntityManagerFactory entityManagerFactory() {
         LocalContainerEntityManagerFactoryBean emf = new LocalContainerEntityManagerFactoryBean();
-        emf.setDataSource(dataSource);
-        emf.setJpaVendorAdapter(jpaVendorAdapter);
         emf.setPackagesToScan("com.pravvich.lecturehibernate");
+        emf.setJpaVendorAdapter(jpaVendorAdapter);
         emf.setPersistenceUnitName("default");
+        emf.setDataSource(dataSource);
         emf.afterPropertiesSet();
         return emf.getObject();
     }
