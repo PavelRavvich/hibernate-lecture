@@ -5,6 +5,7 @@ import com.pravvich.lecturehibernate.filter.CustomerFilter;
 import com.pravvich.lecturehibernate.model.Customer;
 import com.pravvich.lecturehibernate.model.Product;
 import org.hibernate.LazyInitializationException;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -23,6 +24,11 @@ class CustomerRepositoryTest {
 
     @Autowired
     ProductRepository productRepository;
+
+    @BeforeEach
+    public void prepareData() {
+        // todo
+    }
 
     @Test
     public void testFindById() {
