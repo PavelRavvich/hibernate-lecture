@@ -64,7 +64,7 @@ public class CustomerRepositoryImpl implements CustomerRepository {
 
     @Override
     public Optional<Customer> findByIdFetchProducts(final long customerId) {
-        // language=HQL
+        // language = HQL
         final String HQL = "SELECT c FROM Customer c JOIN FETCH c.products p WHERE c.id = :id";
 
         try (Session session = sessionFactory.openSession()) {
