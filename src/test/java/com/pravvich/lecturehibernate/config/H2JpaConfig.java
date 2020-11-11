@@ -1,5 +1,7 @@
 package com.pravvich.lecturehibernate.config;
 
+import com.pravvich.lecturehibernate.repository.CustomerRepository;
+import com.pravvich.lecturehibernate.repository.CustomerRepositoryImpl;
 import com.pravvich.lecturehibernate.repository.ProductRepository;
 import com.pravvich.lecturehibernate.repository.ProductRepositoryImpl;
 import org.hibernate.SessionFactory;
@@ -26,6 +28,11 @@ public class H2JpaConfig {
     @Bean
     public ProductRepository productRepository(SessionFactory sessionFactory) {
         return new ProductRepositoryImpl(sessionFactory);
+    }
+
+    @Bean
+    public CustomerRepository customerRepository(SessionFactory sessionFactory) {
+        return new CustomerRepositoryImpl(sessionFactory);
     }
 
     @Bean
@@ -65,6 +72,7 @@ public class H2JpaConfig {
         hibernateProperties.setProperty("hibernate.hbm2ddl.auto", "update");
         hibernateProperties.setProperty("hibernate.dialect", "org.hibernate.dialect.H2Dialect");
         hibernateProperties.setProperty("hibernate.show_sql", "true");
+        hibernateProperties.setProperty("hibernate.format_sql", "true");
         return hibernateProperties;
     }
 

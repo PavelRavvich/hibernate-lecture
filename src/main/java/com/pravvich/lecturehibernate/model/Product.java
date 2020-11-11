@@ -11,6 +11,7 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode
+@ToString(exclude = "customer")
 @Table(name = "product")
 public class Product {
 

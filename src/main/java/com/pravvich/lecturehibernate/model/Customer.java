@@ -5,12 +5,21 @@ import lombok.*;
 import javax.persistence.*;
 import java.util.List;
 
-@Entity
+
 @Data
 @Builder
+@EqualsAndHashCode
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode
+@NamedEntityGraphs({
+        @NamedEntityGraph(
+                name = "customer.products",
+                attributeNodes = {
+                        @NamedAttributeNode("products")
+                }
+        )
+})
+@Entity
 @Table(name = "customer")
 public class Customer {
 
@@ -18,10 +27,8 @@ public class Customer {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "name")
     private String name;
 
-    @Column(name = "age")
     private int age;
 
     @OneToMany(mappedBy = "customer", fetch = FetchType.LAZY)
