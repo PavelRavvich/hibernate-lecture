@@ -47,7 +47,7 @@ public class CustomerRepositoryImpl implements CustomerRepository {
     public List<Customer> findByFilter(final CustomerFilter filter) {
         // language = HQL
         String query = "SELECT DISTINCT c FROM Customer c" +
-                " WHERE c.age BETWEEN :ageFrom AND :ageTo AND lower(c.name) like :name";
+                " WHERE c.age BETWEEN :ageFrom AND :ageTo AND LOWER(c.name) LIKE :name";
 
         try (final Session session = sessionFactory.openSession()) {
             session.beginTransaction();
