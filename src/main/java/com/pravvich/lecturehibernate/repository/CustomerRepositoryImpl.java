@@ -7,6 +7,8 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.springframework.stereotype.Repository;
 
+import javax.persistence.EntityGraph;
+import javax.persistence.EntityManager;
 import java.util.List;
 import java.util.Optional;
 
@@ -63,7 +65,7 @@ public class CustomerRepositoryImpl implements CustomerRepository {
     }
 
     @Override
-    public Optional<Customer> findByIdFetchProducts(final long customerId) {
+    public Optional<Customer> findByIdFetchJoin(final long customerId) {
         // language = HQL
         final String HQL = "SELECT c FROM Customer c JOIN FETCH c.products p WHERE c.id = :id";
 
@@ -79,7 +81,7 @@ public class CustomerRepositoryImpl implements CustomerRepository {
     }
 
     @Override
-    public List<Customer> findByFilterFetchProducts(final CustomerFilter filter) {
+    public List<Customer> findByFilterFetchJoin(final CustomerFilter filter) {
         // language = HQL
         String query = "SELECT DISTINCT c FROM Customer c JOIN FETCH c.products p" +
                         " WHERE c.age BETWEEN :ageFrom AND :ageTo AND lower(c.name) like :name";
@@ -88,6 +90,45 @@ public class CustomerRepositoryImpl implements CustomerRepository {
             session.beginTransaction();
             @SuppressWarnings("unchecked")
             final List<Customer> list = session.createQuery(query)
+                    .setParameter("ageFrom", filter.getAgeFrom())
+                    .setParameter("ageTo", filter.getAgeTo())
+                    .setParameter("name", filter.getName())
+                    .list();
+            session.getTransaction().commit();
+            return list;
+        }
+    }
+
+    @Override
+    public Optional<Customer> findByIdEntityGraph(long customerId) {
+        // language=HQL
+        final String HQL = "SELECT c FROM Customer c  WHERE c.id = :id";
+        try (Session session = sessionFactory.openSession()) {
+            session.beginTransaction();
+            final EntityManager entityManager = session.getEntityManagerFactory().createEntityManager();
+            EntityGraph<?> entityGraph = entityManager.getEntityGraph("customer.products");
+            final Customer customer = session
+                    .createQuery(HQL, Customer.class)
+                    .setParameter("id", customerId)
+                    .setHint("javax.persistence.fetchgraph", entityGraph)
+                    .getSingleResult();
+            session.getTransaction().commit();
+            return Optional.ofNullable(customer);
+        }
+    }
+
+    @Override
+    public List<Customer> findByFilterEntityGraph(CustomerFilter filter) {
+        // language = HQL
+        String query = "SELECT DISTINCT c FROM Customer c" +
+                " WHERE c.age BETWEEN :ageFrom AND :ageTo AND LOWER(c.name) LIKE :name";
+
+        try (final Session session = sessionFactory.openSession()) {
+            session.beginTransaction();
+            final EntityManager entityManager = session.getEntityManagerFactory().createEntityManager();
+            EntityGraph<?> entityGraph = entityManager.getEntityGraph("customer.products");
+            @SuppressWarnings("unchecked") final List<Customer> list = session.createQuery(query)
+                    .setHint("javax.persistence.fetchgraph", entityGraph)
                     .setParameter("ageFrom", filter.getAgeFrom())
                     .setParameter("ageTo", filter.getAgeTo())
                     .setParameter("name", filter.getName())

@@ -9,8 +9,16 @@ import java.util.Optional;
 
 public interface CustomerRepository {
     Customer create(final Customer customer);
+
+    // Without JOIN
     Optional<Customer> findById(final long customerId);
     List<Customer> findByFilter(final CustomerFilter filter);
-    Optional<Customer> findByIdFetchProducts(final long customerId);
-    List<Customer> findByFilterFetchProducts(final CustomerFilter filter);
+
+    // Fetch join
+    Optional<Customer> findByIdFetchJoin(final long customerId);
+    List<Customer> findByFilterFetchJoin(final CustomerFilter filter);
+
+    // Entity Graph
+    Optional<Customer> findByIdEntityGraph(final long customerId);
+    List<Customer> findByFilterEntityGraph(final CustomerFilter filter);
 }
