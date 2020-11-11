@@ -28,6 +28,41 @@ public class CustomerRepositoryImpl implements CustomerRepository {
     }
 
     @Override
+    public Optional<Customer> findById(final long customerId) {
+        // language=HQL
+        final String HQL = "SELECT c FROM Customer c  WHERE c.id = :id";
+
+        try (Session session = sessionFactory.openSession()) {
+            session.beginTransaction();
+            final Customer customer = session
+                    .createQuery(HQL, Customer.class)
+                    .setParameter("id", customerId)
+                    .getSingleResult();
+            session.getTransaction().commit();
+            return Optional.ofNullable(customer);
+        }
+    }
+
+    @Override
+    public List<Customer> findByFilter(final CustomerFilter filter) {
+        // language = HQL
+        String query = "SELECT DISTINCT c FROM Customer c" +
+                " WHERE c.age BETWEEN :ageFrom AND :ageTo AND lower(c.name) like :name";
+
+        try (final Session session = sessionFactory.openSession()) {
+            session.beginTransaction();
+            @SuppressWarnings("unchecked")
+            final List<Customer> list = session.createQuery(query)
+                    .setParameter("ageFrom", filter.getAgeFrom())
+                    .setParameter("ageTo", filter.getAgeTo())
+                    .setParameter("name", filter.getName())
+                    .list();
+            session.getTransaction().commit();
+            return list;
+        }
+    }
+
+    @Override
     public Optional<Customer> findByIdFetchProducts(final long customerId) {
         // language=HQL
         final String HQL = "SELECT c FROM Customer c JOIN FETCH c.products p WHERE c.id = :id";
