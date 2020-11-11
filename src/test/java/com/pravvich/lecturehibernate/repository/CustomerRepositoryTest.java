@@ -5,7 +5,6 @@ import com.pravvich.lecturehibernate.filter.CustomerFilter;
 import com.pravvich.lecturehibernate.model.Customer;
 import com.pravvich.lecturehibernate.model.Product;
 import org.hibernate.LazyInitializationException;
-import org.hibernate.SessionFactory;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -24,9 +23,6 @@ class CustomerRepositoryTest {
 
     @Autowired
     ProductRepository productRepository;
-
-    @Autowired
-    SessionFactory sessionFactory;
 
     @Test
     public void testFindById() {
