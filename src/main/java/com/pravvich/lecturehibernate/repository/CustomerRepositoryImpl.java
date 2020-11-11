@@ -8,7 +8,6 @@ import org.hibernate.SessionFactory;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityGraph;
-import javax.persistence.EntityManager;
 import java.util.List;
 import java.util.Optional;
 
@@ -54,13 +53,13 @@ public class CustomerRepositoryImpl implements CustomerRepository {
         try (final Session session = sessionFactory.openSession()) {
             session.beginTransaction();
             @SuppressWarnings("unchecked")
-            final List<Customer> list = session.createQuery(query)
+            final List<Customer> customers = session.createQuery(query)
                     .setParameter("ageFrom", filter.getAgeFrom())
                     .setParameter("ageTo", filter.getAgeTo())
                     .setParameter("name", filter.getName())
                     .list();
             session.getTransaction().commit();
-            return list;
+            return customers;
         }
     }
 
@@ -89,24 +88,26 @@ public class CustomerRepositoryImpl implements CustomerRepository {
         try (final Session session = sessionFactory.openSession()) {
             session.beginTransaction();
             @SuppressWarnings("unchecked")
-            final List<Customer> list = session.createQuery(query)
+            final List<Customer> customers = session.createQuery(query)
                     .setParameter("ageFrom", filter.getAgeFrom())
                     .setParameter("ageTo", filter.getAgeTo())
                     .setParameter("name", filter.getName())
                     .list();
             session.getTransaction().commit();
-            return list;
+            return customers;
         }
     }
 
     @Override
     public Optional<Customer> findByIdEntityGraph(long customerId) {
-        // language=HQL
+        // language = HQL
         final String HQL = "SELECT c FROM Customer c  WHERE c.id = :id";
         try (Session session = sessionFactory.openSession()) {
             session.beginTransaction();
-            final EntityManager entityManager = session.getEntityManagerFactory().createEntityManager();
-            EntityGraph<?> entityGraph = entityManager.getEntityGraph("customer.products");
+            final EntityGraph<?> entityGraph = session
+                    .getEntityManagerFactory()
+                    .createEntityManager()
+                    .getEntityGraph("customer.products");
             final Customer customer = session
                     .createQuery(HQL, Customer.class)
                     .setParameter("id", customerId)
@@ -125,16 +126,20 @@ public class CustomerRepositoryImpl implements CustomerRepository {
 
         try (final Session session = sessionFactory.openSession()) {
             session.beginTransaction();
-            final EntityManager entityManager = session.getEntityManagerFactory().createEntityManager();
-            EntityGraph<?> entityGraph = entityManager.getEntityGraph("customer.products");
-            @SuppressWarnings("unchecked") final List<Customer> list = session.createQuery(query)
+            final EntityGraph<?> entityGraph = session
+                    .getEntityManagerFactory()
+                    .createEntityManager()
+                    .getEntityGraph("customer.products");
+            @SuppressWarnings("unchecked")
+            final List<Customer> customers = session
+                    .createQuery(query)
                     .setHint("javax.persistence.fetchgraph", entityGraph)
                     .setParameter("ageFrom", filter.getAgeFrom())
                     .setParameter("ageTo", filter.getAgeTo())
                     .setParameter("name", filter.getName())
                     .list();
             session.getTransaction().commit();
-            return list;
+            return customers;
         }
     }
 
