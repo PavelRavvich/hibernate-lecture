@@ -37,6 +37,7 @@ class CustomerRepositoryTest {
         productRepository.create(Product.builder().customer(customer).price(new BigDecimal(200)).build());
         productRepository.create(Product.builder().customer(customer).price(new BigDecimal(300)).build());
 
+
         final Customer result = customerRepository.findById(customer.getId()).orElseThrow();
 
         assertEquals("Denis", result.getName());

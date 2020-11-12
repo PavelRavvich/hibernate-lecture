@@ -7,7 +7,11 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.springframework.stereotype.Repository;
 
-import javax.persistence.EntityGraph;
+import javax.persistence.EntityManager;
+import javax.persistence.TypedQuery;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Root;
 import java.util.List;
 import java.util.Optional;
 
@@ -30,117 +34,117 @@ public class CustomerRepositoryImpl implements CustomerRepository {
 
     @Override
     public Optional<Customer> findById(final long customerId) {
-        // language=HQL
-        final String HQL = "SELECT c FROM Customer c  WHERE c.id = :id";
-
-        try (Session session = sessionFactory.openSession()) {
-            session.beginTransaction();
-            final Customer customer = session
-                    .createQuery(HQL, Customer.class)
-                    .setParameter("id", customerId)
-                    .getSingleResult();
-            session.getTransaction().commit();
-            return Optional.ofNullable(customer);
-        }
+        final EntityManager entityManager = sessionFactory.createEntityManager();
+        CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Customer> criteriaQuery = criteriaBuilder.createQuery(Customer.class);
+        Root<Customer> customerMetamodel = criteriaQuery.from(Customer.class);
+        criteriaQuery.where(criteriaBuilder.equal(customerMetamodel.get("id"), customerId));
+        TypedQuery<Customer> query = entityManager.createQuery(criteriaQuery);
+        return Optional.ofNullable(query.getSingleResult());
     }
 
     @Override
     public List<Customer> findByFilter(final CustomerFilter filter) {
         // language = HQL
-        String query = "SELECT DISTINCT c FROM Customer c" +
-                " WHERE c.age BETWEEN :ageFrom AND :ageTo AND LOWER(c.name) LIKE :name";
-
-        try (final Session session = sessionFactory.openSession()) {
-            session.beginTransaction();
-            @SuppressWarnings("unchecked")
-            final List<Customer> customers = session.createQuery(query)
-                    .setParameter("ageFrom", filter.getAgeFrom())
-                    .setParameter("ageTo", filter.getAgeTo())
-                    .setParameter("name", filter.getName())
-                    .list();
-            session.getTransaction().commit();
-            return customers;
-        }
+//        String query = "SELECT DISTINCT c FROM Customer c" +
+//                " WHERE c.age BETWEEN :ageFrom AND :ageTo AND LOWER(c.name) LIKE :name";
+//
+//        try (final Session session = sessionFactory.openSession()) {
+//            session.beginTransaction();
+//            @SuppressWarnings("unchecked")
+//            final List<Customer> customers = session.createQuery(query)
+//                    .setParameter("ageFrom", filter.getAgeFrom())
+//                    .setParameter("ageTo", filter.getAgeTo())
+//                    .setParameter("name", filter.getName())
+//                    .list();
+//            session.getTransaction().commit();
+//            return customers;
+//        }
+        return null;
     }
 
     @Override
     public Optional<Customer> findByIdFetchJoin(final long customerId) {
         // language = HQL
-        final String HQL = "SELECT c FROM Customer c JOIN FETCH c.products p WHERE c.id = :id";
-
-        try (Session session = sessionFactory.openSession()) {
-            session.beginTransaction();
-            final Customer customer = session
-                    .createQuery(HQL, Customer.class)
-                    .setParameter("id", customerId)
-                    .getSingleResult();
-            session.getTransaction().commit();
-            return Optional.ofNullable(customer);
-        }
+//        final String HQL = "SELECT c FROM Customer c JOIN FETCH c.products p WHERE c.id = :id";
+//
+//        try (Session session = sessionFactory.openSession()) {
+//            session.beginTransaction();
+//            final Customer customer = session
+//                    .createQuery(HQL, Customer.class)
+//                    .setParameter("id", customerId)
+//                    .getSingleResult();
+//            session.getTransaction().commit();
+//            return Optional.ofNullable(customer);
+//        }
+        return null;
     }
 
     @Override
     public List<Customer> findByFilterFetchJoin(final CustomerFilter filter) {
         // language = HQL
-        String query = "SELECT DISTINCT c FROM Customer c JOIN FETCH c.products p" +
-                        " WHERE c.age BETWEEN :ageFrom AND :ageTo AND lower(c.name) like :name";
-
-        try (final Session session = sessionFactory.openSession()) {
-            session.beginTransaction();
-            @SuppressWarnings("unchecked")
-            final List<Customer> customers = session.createQuery(query)
-                    .setParameter("ageFrom", filter.getAgeFrom())
-                    .setParameter("ageTo", filter.getAgeTo())
-                    .setParameter("name", filter.getName())
-                    .list();
-            session.getTransaction().commit();
-            return customers;
-        }
+//        String query = "SELECT DISTINCT c FROM Customer c JOIN FETCH c.products p" +
+//                        " WHERE c.age BETWEEN :ageFrom AND :ageTo AND lower(c.name) like :name";
+//
+//        try (final Session session = sessionFactory.openSession()) {
+//            session.beginTransaction();
+//            @SuppressWarnings("unchecked")
+//            final List<Customer> customers = session.createQuery(query)
+//                    .setParameter("ageFrom", filter.getAgeFrom())
+//                    .setParameter("ageTo", filter.getAgeTo())
+//                    .setParameter("name", filter.getName())
+//                    .list();
+//            session.getTransaction().commit();
+//            return customers;
+//        }
+        return null;
     }
 
     @Override
     public Optional<Customer> findByIdEntityGraph(long customerId) {
         // language = HQL
-        final String HQL = "SELECT c FROM Customer c  WHERE c.id = :id";
-        try (Session session = sessionFactory.openSession()) {
-            session.beginTransaction();
-            final EntityGraph<?> entityGraph = session
-                    .getEntityManagerFactory()
-                    .createEntityManager()
-                    .getEntityGraph("customer.products");
-            final Customer customer = session
-                    .createQuery(HQL, Customer.class)
-                    .setParameter("id", customerId)
-                    .setHint("javax.persistence.fetchgraph", entityGraph)
-                    .getSingleResult();
-            session.getTransaction().commit();
-            return Optional.ofNullable(customer);
-        }
+//        final String HQL = "SELECT c FROM Customer c  WHERE c.id = :id";
+//        try (Session session = sessionFactory.openSession()) {
+//            session.beginTransaction();
+//            final EntityGraph<?> entityGraph = session
+//                    .getEntityManagerFactory()
+//                    .createEntityManager()
+//                    .getEntityGraph("customer.products");
+//            final Customer customer = session
+//                    .createQuery(HQL, Customer.class)
+//                    .setParameter("id", customerId)
+//                    .setHint("javax.persistence.fetchgraph", entityGraph)
+//                    .getSingleResult();
+//            session.getTransaction().commit();
+//            return Optional.ofNullable(customer);
+//        }
+        return null;
     }
 
     @Override
     public List<Customer> findByFilterEntityGraph(CustomerFilter filter) {
         // language = HQL
-        String query = "SELECT DISTINCT c FROM Customer c" +
-                " WHERE c.age BETWEEN :ageFrom AND :ageTo AND LOWER(c.name) LIKE :name";
-
-        try (final Session session = sessionFactory.openSession()) {
-            session.beginTransaction();
-            final EntityGraph<?> entityGraph = session
-                    .getEntityManagerFactory()
-                    .createEntityManager()
-                    .getEntityGraph("customer.products");
-            @SuppressWarnings("unchecked")
-            final List<Customer> customers = session
-                    .createQuery(query)
-                    .setHint("javax.persistence.fetchgraph", entityGraph)
-                    .setParameter("ageFrom", filter.getAgeFrom())
-                    .setParameter("ageTo", filter.getAgeTo())
-                    .setParameter("name", filter.getName())
-                    .list();
-            session.getTransaction().commit();
-            return customers;
-        }
+//        String query = "SELECT DISTINCT c FROM Customer c" +
+//                " WHERE c.age BETWEEN :ageFrom AND :ageTo AND LOWER(c.name) LIKE :name";
+//
+//        try (final Session session = sessionFactory.openSession()) {
+//            session.beginTransaction();
+//            final EntityGraph<?> entityGraph = session
+//                    .getEntityManagerFactory()
+//                    .createEntityManager()
+//                    .getEntityGraph("customer.products");
+//            @SuppressWarnings("unchecked")
+//            final List<Customer> customers = session
+//                    .createQuery(query)
+//                    .setHint("javax.persistence.fetchgraph", entityGraph)
+//                    .setParameter("ageFrom", filter.getAgeFrom())
+//                    .setParameter("ageTo", filter.getAgeTo())
+//                    .setParameter("name", filter.getName())
+//                    .list();
+//            session.getTransaction().commit();
+//            return customers;
+//        }
+        return null;
     }
 
 }
