@@ -35,11 +35,11 @@ public class CustomerRepositoryImpl implements CustomerRepository {
     @Override
     public Optional<Customer> findById(final long customerId) {
         final EntityManager entityManager = sessionFactory.createEntityManager();
-        CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
-        CriteriaQuery<Customer> criteriaQuery = criteriaBuilder.createQuery(Customer.class);
-        Root<Customer> customerMetamodel = criteriaQuery.from(Customer.class);
+        final CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+        final CriteriaQuery<Customer> criteriaQuery = criteriaBuilder.createQuery(Customer.class);
+        final Root<Customer> customerMetamodel = criteriaQuery.from(Customer.class);
         criteriaQuery.where(criteriaBuilder.equal(customerMetamodel.get("id"), customerId));
-        TypedQuery<Customer> query = entityManager.createQuery(criteriaQuery);
+        final TypedQuery<Customer> query = entityManager.createQuery(criteriaQuery);
         return Optional.ofNullable(query.getSingleResult());
     }
 
