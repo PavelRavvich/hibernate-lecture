@@ -12,6 +12,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import java.util.List;
 import java.util.Map;
@@ -37,12 +38,19 @@ public class CustomerRepositoryImpl implements CustomerRepository {
     @Override
     public Optional<Customer> findById(final long customerId) {
         final EntityManager entityManager = sessionFactory.createEntityManager();
-        final CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
-        final CriteriaQuery<Customer> criteriaQuery = criteriaBuilder.createQuery(Customer.class);
-        final Root<Customer> customerMetamodel = criteriaQuery.from(Customer.class);
-        criteriaQuery.where(criteriaBuilder.equal(customerMetamodel.get("id"), customerId));
-        final TypedQuery<Customer> query = entityManager.createQuery(criteriaQuery);
-        return Optional.ofNullable(query.getSingleResult());
+        try {
+            final CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+            final CriteriaQuery<Customer> criteriaQuery = criteriaBuilder.createQuery(Customer.class);
+            final Root<Customer> customerMetamodel = criteriaQuery.from(Customer.class);
+            criteriaQuery.where(criteriaBuilder.equal(customerMetamodel.get("id"), customerId));
+            final TypedQuery<Customer> query = entityManager.createQuery(criteriaQuery);
+            final Customer singleResult = query.getSingleResult();
+            entityManager.close();
+            return Optional.ofNullable(singleResult);
+        } finally {
+            entityManager.close();
+        }
+
     }
 
     @Override
@@ -56,22 +64,19 @@ public class CustomerRepositoryImpl implements CustomerRepository {
 
     @Override
     public List<Customer> findByFilter(final CustomerFilter filter) {
-        // language = HQL
-//        String query = "SELECT DISTINCT c FROM Customer c" +
-//                " WHERE c.age BETWEEN :ageFrom AND :ageTo AND LOWER(c.name) LIKE :name";
-//
-//        try (final Session session = sessionFactory.openSession()) {
-//            session.beginTransaction();
-//            @SuppressWarnings("unchecked")
-//            final List<Customer> customers = session.createQuery(query)
-//                    .setParameter("ageFrom", filter.getAgeFrom())
-//                    .setParameter("ageTo", filter.getAgeTo())
-//                    .setParameter("name", filter.getName())
-//                    .list();
-//            session.getTransaction().commit();
-//            return customers;
-//        }
-        return null;
+        final EntityManager entityManager = sessionFactory.createEntityManager();
+        final CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+        final CriteriaQuery<Customer> criteriaQuery = criteriaBuilder.createQuery(Customer.class);
+        final Root<Customer> customerMetamodel = criteriaQuery.from(Customer.class);
+
+        final Predicate name = criteriaBuilder.like(customerMetamodel.get("name"), filter.getName());
+        final Predicate age = criteriaBuilder.between(
+                customerMetamodel.get("age"), filter.getAgeFrom(), filter.getAgeTo());
+        final Predicate predicate = criteriaBuilder.and(name, age);
+        criteriaQuery.where(predicate);
+
+        final TypedQuery<Customer> query = entityManager.createQuery(criteriaQuery);
+        return query.getResultList();
     }
 
     @Override
