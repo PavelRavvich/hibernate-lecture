@@ -7,12 +7,14 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.springframework.stereotype.Repository;
 
+import javax.persistence.EntityGraph;
 import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Repository
@@ -41,6 +43,15 @@ public class CustomerRepositoryImpl implements CustomerRepository {
         criteriaQuery.where(criteriaBuilder.equal(customerMetamodel.get("id"), customerId));
         final TypedQuery<Customer> query = entityManager.createQuery(criteriaQuery);
         return Optional.ofNullable(query.getSingleResult());
+    }
+
+    @Override
+    public Optional<Customer> findByIdEntityGraph(long customerId) {
+        final EntityManager entityManager = sessionFactory.createEntityManager();
+        final EntityGraph<?> entityGraph = entityManager.getEntityGraph("customer.products");
+        Map<String, Object> properties = Map.of("javax.persistence.fetchgraph", entityGraph);
+        final Customer customer = entityManager.find(Customer.class, customerId, properties);
+        return Optional.ofNullable(customer);
     }
 
     @Override
@@ -96,27 +107,6 @@ public class CustomerRepositoryImpl implements CustomerRepository {
 //                    .list();
 //            session.getTransaction().commit();
 //            return customers;
-//        }
-        return null;
-    }
-
-    @Override
-    public Optional<Customer> findByIdEntityGraph(long customerId) {
-        // language = HQL
-//        final String HQL = "SELECT c FROM Customer c  WHERE c.id = :id";
-//        try (Session session = sessionFactory.openSession()) {
-//            session.beginTransaction();
-//            final EntityGraph<?> entityGraph = session
-//                    .getEntityManagerFactory()
-//                    .createEntityManager()
-//                    .getEntityGraph("customer.products");
-//            final Customer customer = session
-//                    .createQuery(HQL, Customer.class)
-//                    .setParameter("id", customerId)
-//                    .setHint("javax.persistence.fetchgraph", entityGraph)
-//                    .getSingleResult();
-//            session.getTransaction().commit();
-//            return Optional.ofNullable(customer);
 //        }
         return null;
     }
