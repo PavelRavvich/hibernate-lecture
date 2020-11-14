@@ -38,19 +38,14 @@ public class CustomerRepositoryImpl implements CustomerRepository {
     @Override
     public Optional<Customer> findById(final long customerId) {
         final EntityManager entityManager = sessionFactory.createEntityManager();
-        try {
-            final CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
-            final CriteriaQuery<Customer> criteriaQuery = criteriaBuilder.createQuery(Customer.class);
-            final Root<Customer> customerMetamodel = criteriaQuery.from(Customer.class);
-            criteriaQuery.where(criteriaBuilder.equal(customerMetamodel.get("id"), customerId));
-            final TypedQuery<Customer> query = entityManager.createQuery(criteriaQuery);
-            final Customer singleResult = query.getSingleResult();
-            entityManager.close();
-            return Optional.ofNullable(singleResult);
-        } finally {
-            entityManager.close();
-        }
-
+        final CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+        final CriteriaQuery<Customer> criteriaQuery = criteriaBuilder.createQuery(Customer.class);
+        final Root<Customer> customerMetamodel = criteriaQuery.from(Customer.class);
+        criteriaQuery.where(criteriaBuilder.equal(customerMetamodel.get("id"), customerId));
+        final TypedQuery<Customer> query = entityManager.createQuery(criteriaQuery);
+        final Customer singleResult = query.getSingleResult();
+        entityManager.close();
+        return Optional.ofNullable(singleResult);
     }
 
     @Override
@@ -76,7 +71,9 @@ public class CustomerRepositoryImpl implements CustomerRepository {
         criteriaQuery.where(predicate);
 
         final TypedQuery<Customer> query = entityManager.createQuery(criteriaQuery);
-        return query.getResultList();
+        final List<Customer> result = query.getResultList();
+        entityManager.close();
+        return result;
     }
 
     @Override

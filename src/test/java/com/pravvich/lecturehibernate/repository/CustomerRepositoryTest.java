@@ -80,7 +80,7 @@ class CustomerRepositoryTest {
         productRepository.create(Product.builder().customer(c2).price(new BigDecimal(400)).build());
         productRepository.create(Product.builder().customer(c2).price(new BigDecimal(500)).build());
         productRepository.create(Product.builder().customer(c2).price(new BigDecimal(600)).build());
-        final CustomerFilter filter = new CustomerFilter("da", 10, 35);
+        final CustomerFilter filter = new CustomerFilter("a", 10, 35);
 
         final List<Customer> result = customerRepository.findByFilter(filter);
         assertThrows(
