@@ -2,6 +2,7 @@ package com.pravvich.lecturehibernate.repository;
 
 import com.pravvich.lecturehibernate.filter.CustomerFilter;
 import com.pravvich.lecturehibernate.model.Customer;
+import com.pravvich.lecturehibernate.model.Customer_;
 import lombok.AllArgsConstructor;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -49,15 +50,6 @@ public class CustomerRepositoryImpl implements CustomerRepository {
     }
 
     @Override
-    public Optional<Customer> findByIdEntityGraph(long customerId) {
-        final EntityManager entityManager = sessionFactory.createEntityManager();
-        final EntityGraph<?> entityGraph = entityManager.getEntityGraph("customer.products");
-        Map<String, Object> properties = Map.of("javax.persistence.fetchgraph", entityGraph);
-        final Customer customer = entityManager.find(Customer.class, customerId, properties);
-        return Optional.ofNullable(customer);
-    }
-
-    @Override
     public List<Customer> findByFilter(final CustomerFilter filter) {
         final EntityManager entityManager = sessionFactory.createEntityManager();
         final CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
@@ -77,8 +69,60 @@ public class CustomerRepositoryImpl implements CustomerRepository {
     }
 
     @Override
+    public Optional<Customer> findByIdEntityGraph(final long customerId) {
+        final EntityManager entityManager = sessionFactory.createEntityManager();
+        final EntityGraph<?> entityGraph = entityManager.getEntityGraph("customer.products");
+        Map<String, Object> properties = Map.of("javax.persistence.fetchgraph", entityGraph);
+        final Customer customer = entityManager.find(Customer.class, customerId, properties);
+        return Optional.ofNullable(customer);
+    }
+
+    @Override
+    public List<Customer> findByFilterEntityGraph(final CustomerFilter filter) {
+        final EntityManager entityManager = sessionFactory.createEntityManager();
+        final CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+        final CriteriaQuery<Customer> criteriaQuery = criteriaBuilder.createQuery(Customer.class);
+        final Root<Customer> customerMetamodel = criteriaQuery.from(Customer.class);
+        final Predicate name = criteriaBuilder.like(customerMetamodel.get("name"), filter.getName());
+        final Predicate age = criteriaBuilder.between(
+                customerMetamodel.get("age"), filter.getAgeFrom(), filter.getAgeTo());
+        final Predicate predicate = criteriaBuilder.and(name, age);
+        criteriaQuery.where(predicate);
+
+        final TypedQuery<Customer> query = entityManager.createQuery(criteriaQuery);
+        final EntityGraph<?> entityGraph = entityManager.getEntityGraph("customer.products");
+        Map<String, Object> properties = Map.of("javax.persistence.fetchgraph", entityGraph);
+
+        return null;
+    }
+
+    @Override
+    public List<Customer> findByFilterFetchJoin(final CustomerFilter filter) {
+        final EntityManager entityManager = sessionFactory.createEntityManager();
+        final CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+        final CriteriaQuery<Customer> criteriaQuery = criteriaBuilder.createQuery(Customer.class);
+        final Root<Customer> customerMetamodel = criteriaQuery.from(Customer.class);
+
+        final Predicate name = criteriaBuilder.like(customerMetamodel.get("name"), filter.getName());
+        final Predicate age = criteriaBuilder.between(
+                customerMetamodel.get("age"), filter.getAgeFrom(), filter.getAgeTo());
+        final Predicate predicate = criteriaBuilder.and(name, age);
+
+        customerMetamodel.join(Customer_.PRODUCTS);
+
+        criteriaQuery.where(predicate).distinct(true);
+
+        final TypedQuery<Customer> query = entityManager.createQuery(criteriaQuery);
+
+        final List<Customer> result = query.getResultList();
+//        entityManager.close(); // WTF?
+
+        return result;
+    }
+
+
+    @Override
     public Optional<Customer> findByIdFetchJoin(final long customerId) {
-        // language = HQL
 //        final String HQL = "SELECT c FROM Customer c JOIN FETCH c.products p WHERE c.id = :id";
 //
 //        try (Session session = sessionFactory.openSession()) {
@@ -93,50 +137,8 @@ public class CustomerRepositoryImpl implements CustomerRepository {
         return null;
     }
 
-    @Override
-    public List<Customer> findByFilterFetchJoin(final CustomerFilter filter) {
-        // language = HQL
-//        String query = "SELECT DISTINCT c FROM Customer c JOIN FETCH c.products p" +
-//                        " WHERE c.age BETWEEN :ageFrom AND :ageTo AND lower(c.name) like :name";
-//
-//        try (final Session session = sessionFactory.openSession()) {
-//            session.beginTransaction();
-//            @SuppressWarnings("unchecked")
-//            final List<Customer> customers = session.createQuery(query)
-//                    .setParameter("ageFrom", filter.getAgeFrom())
-//                    .setParameter("ageTo", filter.getAgeTo())
-//                    .setParameter("name", filter.getName())
-//                    .list();
-//            session.getTransaction().commit();
-//            return customers;
-//        }
-        return null;
-    }
 
-    @Override
-    public List<Customer> findByFilterEntityGraph(CustomerFilter filter) {
-        // language = HQL
-//        String query = "SELECT DISTINCT c FROM Customer c" +
-//                " WHERE c.age BETWEEN :ageFrom AND :ageTo AND LOWER(c.name) LIKE :name";
-//
-//        try (final Session session = sessionFactory.openSession()) {
-//            session.beginTransaction();
-//            final EntityGraph<?> entityGraph = session
-//                    .getEntityManagerFactory()
-//                    .createEntityManager()
-//                    .getEntityGraph("customer.products");
-//            @SuppressWarnings("unchecked")
-//            final List<Customer> customers = session
-//                    .createQuery(query)
-//                    .setHint("javax.persistence.fetchgraph", entityGraph)
-//                    .setParameter("ageFrom", filter.getAgeFrom())
-//                    .setParameter("ageTo", filter.getAgeTo())
-//                    .setParameter("name", filter.getName())
-//                    .list();
-//            session.getTransaction().commit();
-//            return customers;
-//        }
-        return null;
-    }
+
+
 
 }

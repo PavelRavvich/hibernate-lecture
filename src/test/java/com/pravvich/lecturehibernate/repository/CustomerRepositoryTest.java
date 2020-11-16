@@ -45,6 +45,27 @@ class CustomerRepositoryTest {
     }
 
     @Test
+    public void testFindByFilter() {
+        Customer c1 = customerRepository.create(Customer.builder().age(20).name("David").build());
+        productRepository.create(Product.builder().customer(c1).price(new BigDecimal(100)).build());
+        productRepository.create(Product.builder().customer(c1).price(new BigDecimal(200)).build());
+        productRepository.create(Product.builder().customer(c1).price(new BigDecimal(300)).build());
+        Customer c2 = customerRepository.create(Customer.builder().age(30).name("Dave").build());
+        productRepository.create(Product.builder().customer(c2).price(new BigDecimal(400)).build());
+        productRepository.create(Product.builder().customer(c2).price(new BigDecimal(500)).build());
+        productRepository.create(Product.builder().customer(c2).price(new BigDecimal(600)).build());
+        final CustomerFilter filter = new CustomerFilter("a", 10, 35);
+
+        final List<Customer> result = customerRepository.findByFilter(filter);
+        assertThrows(
+                LazyInitializationException.class, () ->
+                        result.forEach(customer ->
+                                customer.getProducts().forEach(System.out::println)));
+
+        assertEquals(2, result.size());
+    }
+
+    @Test
     public void testFindByIdFetchJoin() {
         Customer customer = customerRepository.create(Customer.builder().age(20).name("Kiki").build());
         productRepository.create(Product.builder().customer(customer).price(new BigDecimal(100)).build());
@@ -71,27 +92,6 @@ class CustomerRepositoryTest {
     }
 
     @Test
-    public void testFindByFilter() {
-        Customer c1 = customerRepository.create(Customer.builder().age(20).name("David").build());
-        productRepository.create(Product.builder().customer(c1).price(new BigDecimal(100)).build());
-        productRepository.create(Product.builder().customer(c1).price(new BigDecimal(200)).build());
-        productRepository.create(Product.builder().customer(c1).price(new BigDecimal(300)).build());
-        Customer c2 = customerRepository.create(Customer.builder().age(30).name("Dave").build());
-        productRepository.create(Product.builder().customer(c2).price(new BigDecimal(400)).build());
-        productRepository.create(Product.builder().customer(c2).price(new BigDecimal(500)).build());
-        productRepository.create(Product.builder().customer(c2).price(new BigDecimal(600)).build());
-        final CustomerFilter filter = new CustomerFilter("a", 10, 35);
-
-        final List<Customer> result = customerRepository.findByFilter(filter);
-        assertThrows(
-                LazyInitializationException.class, () ->
-                        result.forEach(customer ->
-                                customer.getProducts().forEach(System.out::println)));
-
-        assertEquals(2, result.size());
-    }
-
-    @Test
     public void testFindByFilterEntityGraph() {
         Customer c1 = customerRepository.create(Customer.builder().age(20).name("Max").build());
         productRepository.create(Product.builder().customer(c1).price(new BigDecimal(100)).build());
@@ -109,6 +109,8 @@ class CustomerRepositoryTest {
         assertEquals(2, list.size());
     }
 
+
+
     @Test
     public void testFindByFilterFetchJoin() {
         Customer c1 = customerRepository.create(Customer.builder().age(20).name("Petr").build());
@@ -120,12 +122,12 @@ class CustomerRepositoryTest {
         productRepository.create(Product.builder().customer(c2).price(new BigDecimal(500)).build());
         productRepository.create(Product.builder().customer(c2).price(new BigDecimal(600)).build());
 
-        final CustomerFilter filter = new CustomerFilter("pe", 10, 35);
+        final CustomerFilter filter = new CustomerFilter("e", 10, 35);
         final List<Customer> list = customerRepository.findByFilterFetchJoin(filter);
-        System.out.println(list);
 
         assertEquals(2, list.size());
+        assertEquals(3, list.get(0).getProducts().size());
+        assertEquals(3, list.get(1).getProducts().size());
     }
-
 
 }

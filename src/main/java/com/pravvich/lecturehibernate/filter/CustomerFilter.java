@@ -18,6 +18,6 @@ public class CustomerFilter {
     private Integer ageTo = 150;
 
     public String getName() {
-        return "%" + name + "%";
+        return "%" + name.toLowerCase() + "%";
     }
 }
