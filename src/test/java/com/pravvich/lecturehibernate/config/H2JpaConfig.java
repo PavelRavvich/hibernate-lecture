@@ -1,10 +1,5 @@
 package com.pravvich.lecturehibernate.config;
 
-import com.pravvich.lecturehibernate.repository.CustomerRepository;
-import com.pravvich.lecturehibernate.repository.CustomerRepositoryImpl;
-import com.pravvich.lecturehibernate.repository.ProductRepository;
-import com.pravvich.lecturehibernate.repository.ProductRepositoryImpl;
-import org.hibernate.SessionFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
@@ -24,21 +19,6 @@ import java.util.Properties;
 @PropertySource("classpath:application.properties")
 @EnableTransactionManagement
 public class H2JpaConfig {
-
-    @Bean
-    public ProductRepository productRepository(SessionFactory sessionFactory) {
-        return new ProductRepositoryImpl(sessionFactory);
-    }
-
-    @Bean
-    public CustomerRepository customerRepository(SessionFactory sessionFactory) {
-        return new CustomerRepositoryImpl(sessionFactory);
-    }
-
-    @Bean
-    public SessionFactory setSessionFactory(EntityManagerFactory entityManagerFactory) {
-        return entityManagerFactory.unwrap(SessionFactory.class);
-    }
 
     @Bean
     public DataSource dataSource() {
