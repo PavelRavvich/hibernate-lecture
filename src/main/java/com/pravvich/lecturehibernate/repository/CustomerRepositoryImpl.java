@@ -2,8 +2,8 @@ package com.pravvich.lecturehibernate.repository;
 
 import com.pravvich.lecturehibernate.filter.CustomerFilter;
 import com.pravvich.lecturehibernate.model.Customer;
-import com.pravvich.lecturehibernate.model.Customer_;
 import lombok.AllArgsConstructor;
+import org.hibernate.Hibernate;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.springframework.stereotype.Repository;
@@ -15,6 +15,7 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -24,6 +25,9 @@ import java.util.Optional;
 public class CustomerRepositoryImpl implements CustomerRepository {
 
     private final SessionFactory sessionFactory;
+
+//    @PersistenceContext
+//    private final EntityManager entityManager;
 
     @Override
     public Customer create(final Customer customer) {
@@ -92,8 +96,7 @@ public class CustomerRepositoryImpl implements CustomerRepository {
         final TypedQuery<Customer> query = entityManager.createQuery(criteriaQuery);
         final EntityGraph<?> entityGraph = entityManager.getEntityGraph("customer.products");
         Map<String, Object> properties = Map.of("javax.persistence.fetchgraph", entityGraph);
-
-        return null;
+        return new ArrayList<>();
     }
 
     @Override
@@ -106,39 +109,26 @@ public class CustomerRepositoryImpl implements CustomerRepository {
         final Predicate name = criteriaBuilder.like(customerMetamodel.get("name"), filter.getName());
         final Predicate age = criteriaBuilder.between(
                 customerMetamodel.get("age"), filter.getAgeFrom(), filter.getAgeTo());
-        final Predicate predicate = criteriaBuilder.and(name, age);
-
-        customerMetamodel.join(Customer_.PRODUCTS);
-
-        criteriaQuery.where(predicate).distinct(true);
-
+        final Predicate filterPredicate = criteriaBuilder.and(name, age);
+        criteriaQuery.where(filterPredicate).distinct(true);
         final TypedQuery<Customer> query = entityManager.createQuery(criteriaQuery);
-
-        final List<Customer> result = query.getResultList();
-//        entityManager.close(); // WTF?
-
-        return result;
+        return query.getResultList();
     }
 
 
     @Override
     public Optional<Customer> findByIdFetchJoin(final long customerId) {
-//        final String HQL = "SELECT c FROM Customer c JOIN FETCH c.products p WHERE c.id = :id";
-//
-//        try (Session session = sessionFactory.openSession()) {
-//            session.beginTransaction();
-//            final Customer customer = session
-//                    .createQuery(HQL, Customer.class)
-//                    .setParameter("id", customerId)
-//                    .getSingleResult();
-//            session.getTransaction().commit();
-//            return Optional.ofNullable(customer);
-//        }
-        return null;
+        final EntityManager entityManager = sessionFactory.createEntityManager();
+        final CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+        final CriteriaQuery<Customer> criteriaQuery = criteriaBuilder.createQuery(Customer.class);
+        final Root<Customer> customerMetamodel = criteriaQuery.from(Customer.class);
+        criteriaQuery.where(criteriaBuilder.equal(customerMetamodel.get("id"), customerId));
+        final TypedQuery<Customer> query = entityManager.createQuery(criteriaQuery);
+        final Customer customer = query.getSingleResult();
+        if (customer != null) {
+            Hibernate.initialize(customer.getProducts());
+        }
+        return Optional.ofNullable(customer);
     }
-
-
-
-
 
 }
