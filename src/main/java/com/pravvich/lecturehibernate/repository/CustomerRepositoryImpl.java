@@ -15,7 +15,6 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -95,8 +94,8 @@ public class CustomerRepositoryImpl implements CustomerRepository {
 
         final TypedQuery<Customer> query = entityManager.createQuery(criteriaQuery);
         final EntityGraph<?> entityGraph = entityManager.getEntityGraph("customer.products");
-        Map<String, Object> properties = Map.of("javax.persistence.fetchgraph", entityGraph);
-        return new ArrayList<>();
+        query.setHint("javax.persistence.fetchgraph", entityGraph);
+        return query.getResultList();
     }
 
     @Override
