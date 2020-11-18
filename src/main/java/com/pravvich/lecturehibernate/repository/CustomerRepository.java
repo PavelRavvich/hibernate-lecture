@@ -51,7 +51,8 @@ public interface CustomerRepository
                     exps.add(
                             builder.like(
                                     builder.lower(
-                                            root.get("name")), "%" + name.toLowerCase() + "%")));
+                                            root.get("name")),
+                                    "%" + name.toLowerCase() + "%")));
 
             return predicate;
         }
