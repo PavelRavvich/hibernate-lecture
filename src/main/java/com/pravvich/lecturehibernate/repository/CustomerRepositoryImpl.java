@@ -3,7 +3,6 @@ package com.pravvich.lecturehibernate.repository;
 import com.pravvich.lecturehibernate.filter.CustomerFilter;
 import com.pravvich.lecturehibernate.model.Customer;
 import lombok.AllArgsConstructor;
-import org.hibernate.Hibernate;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.springframework.stereotype.Repository;
@@ -100,36 +99,11 @@ public class CustomerRepositoryImpl implements CustomerRepository {
         return result;
     }
 
-    @Override
-    public List<Customer> findByFilterFetchJoin(final CustomerFilter filter) {
-        final EntityManager entityManager = sessionFactory.createEntityManager();
-        final CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
-        final CriteriaQuery<Customer> criteriaQuery = criteriaBuilder.createQuery(Customer.class);
-        final Root<Customer> customerMetamodel = criteriaQuery.from(Customer.class);
-
-        final Predicate name = criteriaBuilder.like(customerMetamodel.get("name"), filter.getName());
-        final Predicate age = criteriaBuilder.between(
-                customerMetamodel.get("age"), filter.getAgeFrom(), filter.getAgeTo());
-        final Predicate filterPredicate = criteriaBuilder.and(name, age);
-        criteriaQuery.where(filterPredicate).distinct(true);
-        final TypedQuery<Customer> query = entityManager.createQuery(criteriaQuery);
-        return query.getResultList();
-    }
-
 
     @Override
     public Optional<Customer> findByIdFetchJoin(final long customerId) {
-        final EntityManager entityManager = sessionFactory.createEntityManager();
-        final CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
-        final CriteriaQuery<Customer> criteriaQuery = criteriaBuilder.createQuery(Customer.class);
-        final Root<Customer> customerMetamodel = criteriaQuery.from(Customer.class);
-        criteriaQuery.where(criteriaBuilder.equal(customerMetamodel.get("id"), customerId));
-        final TypedQuery<Customer> query = entityManager.createQuery(criteriaQuery);
-        final Customer customer = query.getSingleResult();
-        if (customer != null) {
-            Hibernate.initialize(customer.getProducts());
-        }
-        return Optional.ofNullable(customer);
+        //todo
+        return Optional.empty();
     }
 
 }

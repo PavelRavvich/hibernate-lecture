@@ -16,7 +16,6 @@ public interface CustomerRepository {
 
     // Fetch join
     Optional<Customer> findByIdFetchJoin(final long customerId);
-    List<Customer> findByFilterFetchJoin(final CustomerFilter filter);
 
     // Entity Graph
     Optional<Customer> findByIdEntityGraph(final long customerId);

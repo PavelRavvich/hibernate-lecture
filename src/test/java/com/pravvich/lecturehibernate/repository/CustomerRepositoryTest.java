@@ -108,24 +108,4 @@ class CustomerRepositoryTest {
         assertEquals(2, list.size());
     }
 
-
-    @Test
-    public void testFindByFilterFetchJoin() {
-        Customer c1 = customerRepository.create(Customer.builder().age(20).name("Masha").build());
-        productRepository.create(Product.builder().customer(c1).price(new BigDecimal(100)).build());
-        productRepository.create(Product.builder().customer(c1).price(new BigDecimal(200)).build());
-        productRepository.create(Product.builder().customer(c1).price(new BigDecimal(300)).build());
-        Customer c2 = customerRepository.create(Customer.builder().age(30).name("Pasha").build());
-        productRepository.create(Product.builder().customer(c2).price(new BigDecimal(400)).build());
-        productRepository.create(Product.builder().customer(c2).price(new BigDecimal(500)).build());
-        productRepository.create(Product.builder().customer(c2).price(new BigDecimal(600)).build());
-
-        final CustomerFilter filter = new CustomerFilter("sha", 10, 35);
-        final List<Customer> list = customerRepository.findByFilterFetchJoin(filter);
-
-        assertEquals(2, list.size());
-        assertEquals(3, list.get(0).getProducts().size());
-        assertEquals(3, list.get(1).getProducts().size());
-    }
-
 }
