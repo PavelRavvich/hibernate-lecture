@@ -95,7 +95,9 @@ public class CustomerRepositoryImpl implements CustomerRepository {
         final TypedQuery<Customer> query = entityManager.createQuery(criteriaQuery);
         final EntityGraph<?> entityGraph = entityManager.getEntityGraph("customer.products");
         query.setHint("javax.persistence.fetchgraph", entityGraph);
-        return query.getResultList();
+        final List<Customer> result = query.getResultList();
+        entityManager.close();
+        return result;
     }
 
     @Override

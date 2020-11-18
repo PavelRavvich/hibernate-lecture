@@ -102,7 +102,7 @@ class CustomerRepositoryTest {
         productRepository.create(Product.builder().customer(c2).price(new BigDecimal(500)).build());
         productRepository.create(Product.builder().customer(c2).price(new BigDecimal(600)).build());
 
-        final CustomerFilter filter = new CustomerFilter("ma", 10, 35);
+        final CustomerFilter filter = new CustomerFilter("a", 10, 35);
         final List<Customer> list = customerRepository.findByFilterEntityGraph(filter);
 
         assertEquals(2, list.size());
